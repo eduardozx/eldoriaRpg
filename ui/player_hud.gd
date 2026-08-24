@@ -2,6 +2,8 @@ extends CanvasLayer
 ## HUD local: HP, ouro e inventário (slots).
 
 const SLOT_SIZE := Vector2(72, 58)
+const InvSlotButton := preload("res://ui/inventory_slot_button.gd")
+const EquipSlotButton := preload("res://ui/equip_slot_button.gd")
 
 var _data: PlayerData
 var _slot_buttons: Array[Button] = []
@@ -20,6 +22,9 @@ var _slot_buttons: Array[Button] = []
 @onready var player_list_panel: PanelContainer = %PlayerListPanel
 @onready var player_list_title: Label = %ListTitle
 @onready var player_list_rows: VBoxContainer = %ListRows
+@onready var helmet_slot: Button = %HelmetSlot
+@onready var chest_slot: Button = %ChestSlot
+@onready var hand_slot: Button = %HandSlot
 
 var _list_refresh_left := 0.0
 
@@ -28,6 +33,7 @@ func _ready() -> void:
 	add_to_group("player_hud")
 	inventory_panel.visible = false
 	_build_slots()
+	_setup_equip_slots()
 	set_process_unhandled_input(true)
 	QuestManager.quest_updated.connect(_on_quest_updated)
 	QuestManager.quest_completed.connect(_on_quest_updated)
@@ -111,7 +117,9 @@ func _build_slots() -> void:
 		child.queue_free()
 	_slot_buttons.clear()
 	for i in PlayerData.SLOT_COUNT:
-		var button := Button.new()
+		var button: Button = InvSlotButton.new()
+		button.hud = self
+		button.slot_index = i
 		button.custom_minimum_size = SLOT_SIZE
 		button.clip_text = true
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -153,6 +161,45 @@ func _refresh_quest() -> void:
 		quest_label.text = "Missão: %s" % text
 
 
+func _setup_equip_slots() -> void:
+	for config in [["helmet", helmet_slot], ["chest", chest_slot], ["hand", hand_slot]]:
+		var button: Button = config[1]
+		button.set_script(EquipSlotButton)
+		button.setup(config[0], self)
+
+
+## Id do item equipado num slot ("hand"/"helmet"/"chest").
+func equipped_id_for(slot_name: String) -> String:
+	if _data == null:
+		return ""
+	match slot_name:
+		"hand":
+			return _data.equipped_weapon_id
+		_:
+			return str(_data.equipped_armor.get(slot_name, ""))
+
+
+func equip_via_drop(slot_name: String, index: int) -> void:
+	if _data == null or not _data.equip_to(slot_name, index):
+		slot_hint.text = "Esse item não vai nesse slot."
+		return
+	slot_hint.text = "%s equipado!" % ItemCatalog.display_name(str(_data.get_slot(index).get("item_id", "")))
+
+
+func unequip_via_drop(slot_name: String) -> void:
+	if _data == null:
+		return
+	_data.unequip_slot(slot_name)
+	slot_hint.text = "Equipamento guardado."
+
+
+func _on_equip_slot_clicked(slot_name: String) -> void:
+	if equipped_id_for(slot_name).is_empty():
+		slot_hint.text = "Arraste um equipamento compatível até aqui."
+	else:
+		_data.unequip_slot(slot_name)
+
+
 func _refresh_status() -> void:
 	if _data == null:
 		return
@@ -189,7 +236,7 @@ func _refresh_inventory() -> void:
 		var item_id := str(slot.get("item_id", ""))
 		var qty := int(slot.get("quantity", 0))
 		var shown := ItemCatalog.display_name(item_id)
-		var equipped := _data.equipped_weapon_id == item_id
+		var equipped := _data.is_equipped(item_id)
 		button.text = "%s%s\n×%d" % ["[E] " if equipped else "", shown, qty]
 		button.disabled = false
 		var def := ItemCatalog.get_def(item_id)

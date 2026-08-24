@@ -7,6 +7,9 @@ const KIND_EQUIPMENT := "equipment"
 
 const ATTACK_SLASH := "slash"
 const ATTACK_BOLT := "bolt"
+const SLOT_HAND := "hand"
+const SLOT_HELMET := "helmet"
+const SLOT_CHEST := "chest"
 const FIST_RANGE := 46.0
 const FIST_ARC_DOT := -0.15
 const FIST_COOLDOWN := 0.42
@@ -42,6 +45,7 @@ const ITEMS := {
 		"kind": KIND_EQUIPMENT,
 		"max_stack": 1,
 		"heal": 0,
+		"slot": SLOT_HAND,
 		"attack": ATTACK_SLASH,
 		"bonus": 2,
 		"range": 52.0,
@@ -55,12 +59,33 @@ const ITEMS := {
 		"kind": KIND_EQUIPMENT,
 		"max_stack": 1,
 		"heal": 0,
+		"slot": SLOT_HAND,
 		"attack": ATTACK_BOLT,
 		"bonus": 1,
 		"range": 175.0,
 		"cooldown": 0.65,
 		"arc_dot": 0.35,
 		"description": "Dispara um projétil mágico de longo alcance (+1 de dano).",
+	},
+	"iron_helm": {
+		"id": "iron_helm",
+		"name": "Elmo de Ferro",
+		"kind": KIND_EQUIPMENT,
+		"max_stack": 1,
+		"heal": 0,
+		"slot": SLOT_HELMET,
+		"defense": 3,
+		"description": "Protege a cabeça (+3 de defesa). Arraste até o slot de elmo.",
+	},
+	"iron_chest": {
+		"id": "iron_chest",
+		"name": "Peitoral de Ferro",
+		"kind": KIND_EQUIPMENT,
+		"max_stack": 1,
+		"heal": 0,
+		"slot": SLOT_CHEST,
+		"defense": 5,
+		"description": "Blindagem do torso (+5 de defesa). Arraste até o slot de peito.",
 	},
 }
 
@@ -91,6 +116,14 @@ func is_consumable(item_id: String) -> bool:
 
 func is_equipment(item_id: String) -> bool:
 	return str(get_def(item_id).get("kind", "")) == KIND_EQUIPMENT
+
+
+func slot_of(item_id: String) -> String:
+	return str(get_def(item_id).get("slot", SLOT_HAND))
+
+
+func armor_bonus(item_id: String) -> int:
+	return int(get_def(item_id).get("defense", 0))
 
 
 func weapon_attack(item_id: String) -> String:

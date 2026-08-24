@@ -1,7 +1,81 @@
-[gd_scene load_steps=3 format=3 uid="uid://beldoria_login"]
+[gd_scene load_steps=9 format=3 uid="uid://beldoria_login"]
 
 [ext_resource type="Script" path="res://ui/login.gd" id="1_login"]
 [ext_resource type="PackedScene" uid="uid://beldoria_charcreator" path="res://ui/character_creator.tscn" id="2_creator"]
+
+[sub_resource type="StyleBoxFlat" id="sb_panel"]
+bg_color = Color(0.09, 0.10, 0.16, 0.97)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.38, 0.46, 0.74, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="sb_btn"]
+bg_color = Color(0.16, 0.19, 0.29, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.30, 0.37, 0.58, 1)
+
+[sub_resource type="StyleBoxFlat" id="sb_btn_hover"]
+bg_color = Color(0.23, 0.27, 0.40, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.90, 0.78, 0.44, 1)
+
+[sub_resource type="StyleBoxFlat" id="sb_btn_pressed"]
+bg_color = Color(0.11, 0.14, 0.23, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.93, 0.80, 0.42, 1)
+
+[sub_resource type="StyleBoxFlat" id="sb_input"]
+bg_color = Color(0.06, 0.07, 0.11, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.26, 0.31, 0.50, 1)
+
+[sub_resource type="StyleBoxFlat" id="sb_input_focus"]
+bg_color = Color(0.06, 0.07, 0.11, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.93, 0.80, 0.42, 1)
 
 [node name="Login" type="CanvasLayer"]
 script = ExtResource("1_login")
@@ -33,6 +107,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="Control/Center"]
+theme_override_styles/panel = SubResource("sb_panel")
 custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 
@@ -49,6 +124,7 @@ theme_override_constants/separation = 14
 
 [node name="Title" type="Label" parent="Control/Center/Panel/Margin/VBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.82, 0.44, 1)
 theme_override_font_sizes/font_size = 28
 text = "Eldoria"
 horizontal_alignment = 1
@@ -111,6 +187,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="Control/RegisterCenter"]
+theme_override_styles/panel = SubResource("sb_panel")
 custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 
@@ -127,6 +204,7 @@ theme_override_constants/separation = 14
 
 [node name="Title" type="Label" parent="Control/RegisterCenter/Panel/Margin/VBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.82, 0.44, 1)
 theme_override_font_sizes/font_size = 28
 text = "Criar conta"
 horizontal_alignment = 1

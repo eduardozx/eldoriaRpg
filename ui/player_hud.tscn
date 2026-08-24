@@ -1,6 +1,19 @@
-[gd_scene load_steps=2 format=3 uid="uid://beldoria_player_hud"]
+[gd_scene load_steps=3 format=3 uid="uid://beldoria_player_hud"]
 
 [ext_resource type="Script" path="res://ui/player_hud.gd" id="1_hud"]
+
+[sub_resource type="StyleBoxFlat" id="sb_panel_hud"]
+bg_color = Color(0.08, 0.09, 0.14, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.39, 0.62, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
 
 [node name="PlayerHud" type="CanvasLayer"]
 layer = 8
@@ -16,6 +29,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="StatusPanel" type="PanelContainer" parent="Root"]
+theme_override_styles/panel = SubResource("sb_panel_hud")
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -96,6 +110,7 @@ text = "Missão: nenhuma"
 autowrap_mode = 2
 
 [node name="InventoryPanel" type="PanelContainer" parent="Root"]
+theme_override_styles/panel = SubResource("sb_panel_hud")
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
@@ -104,8 +119,8 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -348.0
-offset_top = -360.0
+offset_left = -430.0
+offset_top = -380.0
 offset_right = -16.0
 offset_bottom = -16.0
 grow_horizontal = 0
@@ -125,14 +140,57 @@ theme_override_constants/separation = 8
 [node name="Title" type="Label" parent="Root/InventoryPanel/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "Inventário  (I para fechar)"
+text = "Inventário  (I fecha · arraste equipamentos até os slots)"
 
-[node name="SlotGrid" type="GridContainer" parent="Root/InventoryPanel/Margin/VBox"]
+[node name="Content" type="HBoxContainer" parent="Root/InventoryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LeftSide" type="VBoxContainer" parent="Root/InventoryPanel/Margin/VBox/Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SlotGrid" type="GridContainer" parent="Root/InventoryPanel/Margin/VBox/Content/LeftSide"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
 columns = 4
+
+[node name="EquipPanel" type="VBoxContainer" parent="Root/InventoryPanel/Margin/VBox/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="EquipTitle" type="Label" parent="Root/InventoryPanel/Margin/VBox/Content/EquipPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "EQUIPAMENTO"
+
+[node name="HelmetSlot" type="Button" parent="Root/InventoryPanel/Margin/VBox/Content/EquipPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 44)
+layout_mode = 2
+text = "Elmo"
+
+[node name="ChestSlot" type="Button" parent="Root/InventoryPanel/Margin/VBox/Content/EquipPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 44)
+layout_mode = 2
+text = "Peito"
+
+[node name="HandSlot" type="Button" parent="Root/InventoryPanel/Margin/VBox/Content/EquipPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 44)
+layout_mode = 2
+text = "Arma"
+
+[node name="EquipHint" type="Label" parent="Root/InventoryPanel/Margin/VBox/Content/EquipPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.62, 0.7, 1)
+theme_override_font_sizes/font_size = 10
+autowrap_mode = 2
+text = "Arraste itens daqui\npara os slots. Clique\nno slot p/ desequipar."
 
 [node name="SlotHint" type="Label" parent="Root/InventoryPanel/Margin/VBox"]
 unique_name_in_owner = true
@@ -142,6 +200,7 @@ text = "Clique em um consumível para usar."
 autowrap_mode = 2
 
 [node name="PlayerListPanel" type="PanelContainer" parent="Root"]
+theme_override_styles/panel = SubResource("sb_panel_hud")
 unique_name_in_owner = true
 visible = false
 layout_mode = 1

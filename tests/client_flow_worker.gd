@@ -26,7 +26,9 @@ func _ready() -> void:
 		NetworkManager.needs_character_creation.connect(func() -> void:
 			_finish("FAIL_CREATOR_SHOULD_NOT_SHOW"))
 		NetworkManager.join_or_host(p_name, password)
-		_await_world_then_check_position(1500, 300)
+		var expected := OS.get_environment("ELDORIA_TEST_EXPECT")
+		var parts := expected.split(",") if not expected.is_empty() else PackedStringArray(["1500", "300"])
+		_await_world_then_check_position(float(parts[0]), float(parts[1]))
 	else:
 		_finish("UNKNOWN_MODE")
 	_timeout_guard()

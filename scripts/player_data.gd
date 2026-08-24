@@ -39,6 +39,12 @@ var equipped_weapon_id: String = "":
 		equipped_weapon_id = value
 		equipment_changed.emit()
 
+## Armaduras por slot: {"helmet": "", "chest": ""}.
+var equipped_armor: Dictionary = {"helmet": "", "chest": ""}:
+	set(value):
+		equipped_armor = value
+		equipment_changed.emit()
+
 
 func _ready() -> void:
 	_ensure_slots()
@@ -85,8 +91,9 @@ func heal(amount: int) -> int:
 func take_damage(amount: int) -> int:
 	if amount <= 0 or hp <= 0:
 		return 0
+	var dealt := maxi(1, amount - defense())
 	var before := hp
-	hp = hp - amount
+	hp = hp - dealt
 	return before - hp
 
 
@@ -207,6 +214,16 @@ func toggle_equip(index: int) -> bool:
 	var item_id := str(slot.get("item_id", ""))
 	if not ItemCatalog.is_equipment(item_id):
 		return false
+	match ItemCatalog.slot_of(item_id):
+		ItemCatalog.SLOT_HELMET:
+			return _toggle_armor("helmet", item_id)
+		ItemCatalog.SLOT_CHEST:
+			return _toggle_armor("chest", item_id)
+		_:
+			return _toggle_hand(item_id)
+
+
+func _toggle_hand(item_id: String) -> bool:
 	if equipped_weapon_id == item_id:
 		equipped_weapon_id = ""
 		return true
@@ -214,6 +231,64 @@ func toggle_equip(index: int) -> bool:
 		return false
 	equipped_weapon_id = item_id
 	return true
+
+
+func _toggle_armor(slot_name: String, item_id: String) -> bool:
+	var armor := equipped_armor.duplicate(true)
+	if str(armor.get(slot_name, "")) == item_id:
+		armor[slot_name] = ""
+		equipped_armor = armor
+		return true
+	if count_item(item_id) <= 0:
+		return false
+	armor[slot_name] = item_id
+	equipped_armor = armor
+	return true
+
+
+func is_equipped(item_id: String) -> bool:
+	if equipped_weapon_id == item_id:
+		return true
+	return equipped_armor.values().has(item_id)
+
+
+## Equipa direto um item do inventário no slot pedido (drag-and-drop).
+func equip_to(slot_name: String, index: int) -> bool:
+	var item_id := str(get_slot(index).get("item_id", ""))
+	if not ItemCatalog.is_equipment(item_id):
+		return false
+	if ItemCatalog.slot_of(item_id) != slot_name:
+		return false
+	if count_item(item_id) <= 0:
+		return false
+	match slot_name:
+		ItemCatalog.SLOT_HAND:
+			equipped_weapon_id = item_id
+			return true
+		ItemCatalog.SLOT_HELMET, ItemCatalog.SLOT_CHEST:
+			var armor := equipped_armor.duplicate(true)
+			armor[slot_name] = item_id
+			equipped_armor = armor
+			return true
+	return false
+
+
+func unequip_slot(slot_name: String) -> void:
+	match slot_name:
+		ItemCatalog.SLOT_HAND:
+			equipped_weapon_id = ""
+		ItemCatalog.SLOT_HELMET, ItemCatalog.SLOT_CHEST:
+			var armor := equipped_armor.duplicate(true)
+			armor[slot_name] = ""
+			equipped_armor = armor
+
+
+## Defesa total das armaduras vestidas.
+func defense() -> int:
+	var total := 0
+	for slot_name in ["helmet", "chest"]:
+		total += ItemCatalog.armor_bonus(str(equipped_armor.get(slot_name, "")))
+	return total
 
 
 func attack_damage(equipped_item_id: String = "") -> int:
@@ -229,6 +304,7 @@ func to_snapshot() -> Dictionary:
 		"base_damage": base_damage,
 		"gold": gold,
 		"equipped_weapon_id": equipped_weapon_id,
+		"equipped_armor": equipped_armor.duplicate(true),
 		"inventory": slots.duplicate(true),
 	}
 
@@ -254,6 +330,12 @@ func apply_snapshot(snapshot: Dictionary) -> void:
 	_ensure_slots()
 
 	equipped_weapon_id = str(snapshot.get("equipped_weapon_id", ""))
+	var saved_armor: Variant = snapshot.get("equipped_armor")
+	if saved_armor is Dictionary:
+		equipped_armor = {
+			"helmet": str(saved_armor.get("helmet", "")),
+			"chest": str(saved_armor.get("chest", "")),
+		}
 	hp = max_hp
 	stats_changed.emit()
 	gold_changed.emit()
@@ -300,3 +382,5 @@ func _give_starter_kit() -> void:
 	add_item("herb", 2)
 	add_item("rusty_sword", 1)
 	add_item("wizard_staff", 1)
+	add_item("iron_helm", 1)
+	add_item("iron_chest", 1)

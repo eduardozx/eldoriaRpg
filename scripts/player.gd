@@ -20,6 +20,7 @@ static var _frames_cache: Dictionary = {}
 		_apply_customization()
 
 @export var equipped_weapon: String = ""
+@export var equipped_armor: Dictionary = {}
 
 @export var facing_index: int = 2:
 	set(value):
@@ -48,7 +49,10 @@ static var _frames_cache: Dictionary = {}
 var current_zone: String = ""
 var _zone_titles: Dictionary = {}
 var _zone_stack: Array[String] = []
+const ATTACK_ANIM_TIME := 0.30
+
 var _attack_cd := 0.0
+var _attack_anim_left := 0.0
 var _respawn_left := 0.0
 var _hurt_flash := 0.0
 var _attack_flash := 0.0
@@ -118,9 +122,14 @@ func _apply_customization() -> void:
 	if sprite == null:
 		return
 	var look := PlayerSpriteFrames.normalize(customization)
-	var cache_key := str(look.hash())
+	var gear := PlayerSpriteFrames.normalize_equipment({
+		"hand": effective_weapon_id(),
+		"helmet": str(equipped_armor.get("helmet", "")),
+		"chest": str(equipped_armor.get("chest", "")),
+	})
+	var cache_key := str([look, gear].hash())
 	if not _frames_cache.has(cache_key):
-		_frames_cache[cache_key] = PlayerSpriteFrames.build(look)
+		_frames_cache[cache_key] = PlayerSpriteFrames.build(look, gear)
 	sprite.sprite_frames = _frames_cache[cache_key]
 
 
@@ -170,6 +179,14 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 
+	if _attack_anim_left > 0.0:
+		# Golpe em andamento: trava movimento e toca a animação de ataque.
+		_attack_anim_left -= delta
+		velocity = Vector2.ZERO
+		anim_state = "attack"
+		move_and_slide()
+		return
+
 	var input_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	if input_dir.length_squared() > MOVE_DEADZONE:
 		input_dir = input_dir.normalized()
@@ -197,6 +214,7 @@ func _try_attack() -> void:
 	var arc_dot := ItemCatalog.weapon_arc_dot(weapon)
 	var attack_type := ItemCatalog.weapon_attack(weapon)
 	var facing: Vector2 = DIR_VECTORS[facing_index].normalized()
+	_attack_anim_left = ATTACK_ANIM_TIME
 	_broadcast_attack_effect(attack_type, facing_index)
 
 	for node in get_tree().get_nodes_in_group("monster"):
@@ -350,6 +368,10 @@ func _on_stats_changed() -> void:
 func _on_equipment_changed() -> void:
 	if is_multiplayer_authority():
 		equipped_weapon = data.equipped_weapon_id
+		equipped_armor = data.equipped_armor.duplicate(true)
+		_apply_customization()
+		if health_bar and health_bar.has_method("set_health"):
+			health_bar.set_health(data.hp, data.max_hp)
 
 
 func _broadcast_attack_effect(attack_type: String, dir_index: int) -> void:

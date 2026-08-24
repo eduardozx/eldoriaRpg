@@ -63,6 +63,7 @@ static func pack_inventory(snapshot: Dictionary) -> Variant:
 		"pos_y": float(snapshot.get("pos_y", 0.0)),
 		"appearance": snapshot.get("appearance", {}),
 		"character_created": bool(snapshot.get("character_created", false)),
+		"equipped_armor": snapshot.get("equipped_armor", {}),
 	}
 
 
@@ -75,6 +76,8 @@ static func expand_account(account: Dictionary) -> Dictionary:
 		out["pos_y"] = float(inv.get("pos_y", 0.0))
 		out["appearance"] = inv.get("appearance", {})
 		out["character_created"] = bool(inv.get("character_created", false))
+		var armor: Variant = inv.get("equipped_armor")
+		out["equipped_armor"] = armor if armor is Dictionary else {}
 		out["inventory"] = inv.get("slots", [])
 	else:
 		# Formato antigo (array): personagem já existia.
