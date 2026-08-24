@@ -26,6 +26,27 @@ const DIR_VECTORS: Array[Vector2] = [
 	Vector2(1, -1),
 ]
 
+## Folha de sprites oficial do herói (tem prioridade sobre o procedural).
+const SHEET_PATH := "res://assets/hero/hero_sheet_alpha.png"
+const SHEET_FRAME_W := 88
+const SHEET_FRAME_H := 128
+## (linha, coluna) de cada tira na grade 6×4 (4 quadros por tira).
+const SHEET_STRIPS := {
+	"idle_front": [0, 0],
+	"walk_front": [0, 1],
+	"walk_back": [1, 0],
+	"walk_right": [2, 0],
+	"running": [2, 2],
+	"attack_front": [3, 0],
+	"take_damage": [4, 2],
+	"death": [4, 3],
+	"salute": [5, 1],
+}
+
+static func uses_sheet() -> bool:
+	return ResourceLoader.exists(SHEET_PATH)
+
+
 ## Visuais dos equipamentos por id (espalhados com o ItemCatalog).
 const EQUIPMENT_VISUALS := {
 	"rusty_sword": {
@@ -53,6 +74,8 @@ const EQUIPMENT_VISUALS := {
 
 
 static func build(appearance: Dictionary = {}, equipment: Dictionary = {}) -> SpriteFrames:
+	if uses_sheet():
+		return _build_from_sheet()
 	var look := normalize(appearance)
 	var gear := normalize_equipment(equipment)
 	var frames := SpriteFrames.new()
@@ -79,9 +102,11 @@ static func normalize(raw: Variant) -> Dictionary:
 				elif value.contains("("):
 					# Aceita também o formato interno "R, G, B, A" do Godot.
 					look[key] = Color.from_string(value, look[key])
-		var style := int(raw.get("hair_style", -1))
-		if style >= 0 and style < HAIR_STYLE_COUNT:
-			look["hair_style"] = style
+	var style: int = 0
+	if raw is Dictionary:
+		style = int(raw.get("hair_style", -1))
+	if style >= 0 and style < HAIR_STYLE_COUNT:
+		look["hair_style"] = style
 	return look
 
 
@@ -93,6 +118,59 @@ static func normalize_equipment(equipment: Variant) -> Dictionary:
 			var item_id := str(equipment.get(key, ""))
 			out[key] = item_id if EQUIPMENT_VISUALS.has(item_id) else ""
 	return out
+
+
+## Monta o SpriteFrames a partir da folha de sprites do herói.
+static func _build_from_sheet() -> SpriteFrames:
+	var tex: Texture2D = load(SHEET_PATH)
+	var img: Image = tex.get_image()
+	if img.is_compressed():
+		img.decompress()
+	var frames := SpriteFrames.new()
+	for i in DIR_NAMES.size():
+		var dn := DIR_NAMES[i]
+		var f := DIR_VECTORS[i]
+		var mirror := f.x < -0.3
+		var idle_strip := "idle_front"
+		var walk_strip := "walk_front"
+		if f.y < -0.3:
+			idle_strip = "walk_back"
+			walk_strip = "walk_back"
+		elif absf(f.x) > absf(f.y):
+			idle_strip = "walk_right"
+			walk_strip = "walk_right"
+		_add_sheet_clip(frames, img, "idle_%s" % dn, idle_strip, 5.0, true, mirror)
+		_add_sheet_clip(frames, img, "walk_%s" % dn, walk_strip, 9.0, true, mirror)
+		_add_sheet_clip(frames, img, "attack_%s" % dn, "attack_front", 12.0, false, mirror)
+	_add_sheet_clip(frames, img, "hurt", "take_damage", 8.0, true, false)
+	_add_sheet_clip(frames, img, "death", "death", 8.0, false, false)
+	return frames
+
+
+static func _add_sheet_clip(
+		frames: SpriteFrames,
+		img: Image,
+		anim_name: String,
+		strip_key: String,
+		fps: float,
+		loop: bool,
+		mirror: bool
+) -> void:
+	if not SHEET_STRIPS.has(strip_key):
+		return
+	var rc: Array = SHEET_STRIPS[strip_key]
+	if frames.has_animation(anim_name):
+		frames.remove_animation(anim_name)
+	frames.add_animation(anim_name)
+	frames.set_animation_speed(anim_name, fps)
+	frames.set_animation_loop(anim_name, loop)
+	for fi in 4:
+		var x: int = rc[1] * SHEET_FRAME_W * 4 + fi * SHEET_FRAME_W
+		var y: int = rc[0] * SHEET_FRAME_H
+		var region := img.get_region(Rect2i(x, y, SHEET_FRAME_W, SHEET_FRAME_H))
+		if mirror:
+			region.flip_x()
+		frames.add_frame(anim_name, ImageTexture.create_from_image(region))
 
 
 static func _add_clip(

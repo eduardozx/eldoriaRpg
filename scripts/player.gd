@@ -53,6 +53,7 @@ const ATTACK_ANIM_TIME := 0.30
 
 var _attack_cd := 0.0
 var _attack_anim_left := 0.0
+var _hurt_anim_left := 0.0
 var _respawn_left := 0.0
 var _hurt_flash := 0.0
 var _attack_flash := 0.0
@@ -131,6 +132,14 @@ func _apply_customization() -> void:
 	if not _frames_cache.has(cache_key):
 		_frames_cache[cache_key] = PlayerSpriteFrames.build(look, gear)
 	sprite.sprite_frames = _frames_cache[cache_key]
+	if PlayerSpriteFrames.uses_sheet():
+		var sc := 0.31
+		sprite.scale = Vector2(sc, sc)
+		# Pés da folha (~y124 de 128) alinhados com a sombra/base antiga (+14).
+		sprite.position = Vector2(0, 14.0 - 64.0 * sc)
+	else:
+		sprite.scale = Vector2.ONE
+		sprite.position = Vector2.ZERO
 
 
 func enter_zone(zone_id: String, zone_title: String) -> void:
@@ -166,7 +175,7 @@ func _physics_process(delta: float) -> void:
 
 	if not is_combat_alive():
 		velocity = Vector2.ZERO
-		anim_state = "idle"
+		anim_state = "death"
 		_respawn_left -= delta
 		if _respawn_left <= 0.0:
 			_respawn_at_spawn()
@@ -184,6 +193,12 @@ func _physics_process(delta: float) -> void:
 		_attack_anim_left -= delta
 		velocity = Vector2.ZERO
 		anim_state = "attack"
+		move_and_slide()
+		return
+
+	if _hurt_anim_left > 0.0:
+		_hurt_anim_left -= delta
+		anim_state = "hurt"
 		move_and_slide()
 		return
 
@@ -329,6 +344,7 @@ func _apply_damage(amount: int) -> void:
 		return
 	data.take_damage(amount)
 	_hurt_flash = 0.14
+	_hurt_anim_left = 0.25
 	if data.hp <= 0:
 		_respawn_left = RESPAWN_SEC
 		velocity = Vector2.ZERO

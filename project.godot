@@ -87,6 +87,10 @@ interact={
 3d/physics_engine="Jolt Physics"
 2d/default_gravity=0.0
 
+[plugins]
+
+ai_image_gen="res://addons/ai_image_gen/plugin.cfg"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
