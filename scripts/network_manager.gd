@@ -273,6 +273,9 @@ func _rpc_auth_response(ok: bool, message: String, snapshot: Dictionary) -> void
 		return
 	_session_token = str(snapshot.get("session_token", ""))
 	if bool(snapshot.get("character_created", false)):
+		# Snapshot viaja com o cliente através do reconnect e é consumido
+		# pelo player ao entrar no mundo (stats + posição salva).
+		_local_pending_account = snapshot
 		var appearance: Variant = snapshot.get("appearance")
 		if appearance is Dictionary and not appearance.is_empty():
 			local_player_appearance = PlayerSpriteFrames.normalize(appearance)
