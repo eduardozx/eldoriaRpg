@@ -1,0 +1,186 @@
+[gd_scene load_steps=3 format=3 uid="uid://beldoria_login"]
+
+[ext_resource type="Script" path="res://ui/login.gd" id="1_login"]
+[ext_resource type="PackedScene" uid="uid://beldoria_charcreator" path="res://ui/character_creator.tscn" id="2_creator"]
+
+[node name="Login" type="CanvasLayer"]
+script = ExtResource("1_login")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.09, 0.12, 1)
+
+[node name="Center" type="CenterContainer" parent="Control"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Control/Center"]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Control/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="Control/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Control/Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Eldoria"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Control/Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.78, 0.82, 1)
+text = "RPG top-down · multiplayer web"
+horizontal_alignment = 1
+
+[node name="NameEdit" type="LineEdit" parent="Control/Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Nome do jogador"
+alignment = 1
+max_length = 20
+caret_blink = true
+
+[node name="PasswordEdit" type="LineEdit" parent="Control/Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Senha"
+alignment = 1
+max_length = 32
+secret = true
+caret_blink = true
+
+[node name="Buttons" type="HBoxContainer" parent="Control/Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LoginButton" type="Button" parent="Control/Center/Panel/Margin/VBox/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Entrar"
+
+[node name="RegisterButton" type="Button" parent="Control/Center/Panel/Margin/VBox/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Criar conta"
+
+[node name="StatusLabel" type="Label" parent="Control/Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+horizontal_alignment = 1
+
+[node name="RegisterCenter" type="CenterContainer" parent="Control"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Control/RegisterCenter"]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Control/RegisterCenter/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="Control/RegisterCenter/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Control/RegisterCenter/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Criar conta"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Control/RegisterCenter/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.78, 0.82, 1)
+text = "Só nome e senha. O progresso fica salvo."
+horizontal_alignment = 1
+
+[node name="RegNameEdit" type="LineEdit" parent="Control/RegisterCenter/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Nome do jogador"
+alignment = 1
+max_length = 20
+caret_blink = true
+
+[node name="RegPasswordEdit" type="LineEdit" parent="Control/RegisterCenter/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Senha (mín. 3 caracteres)"
+alignment = 1
+max_length = 32
+secret = true
+caret_blink = true
+
+[node name="RegButtons" type="HBoxContainer" parent="Control/RegisterCenter/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BackButton" type="Button" parent="Control/RegisterCenter/Panel/Margin/VBox/RegButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "Voltar"
+
+[node name="Spacer" type="Control" parent="Control/RegisterCenter/Panel/Margin/VBox/RegButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RegisterSubmit" type="Button" parent="Control/RegisterCenter/Panel/Margin/VBox/RegButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 36)
+layout_mode = 2
+disabled = true
+text = "Registrar"
+
+[node name="RegStatusLabel" type="Label" parent="Control/RegisterCenter/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+horizontal_alignment = 1
+
+[node name="CharacterCreator" parent="." instance=ExtResource("2_creator")]
+unique_name_in_owner = true
+visible = false

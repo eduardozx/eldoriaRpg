@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://beldoria_accounttest"]
+
+[ext_resource type="Script" path="res://tests/account_test.gd" id="1_test"]
+
+[node name="AccountTest" type="Node"]
+script = ExtResource("1_test")

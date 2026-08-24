@@ -1,0 +1,88 @@
+[gd_scene load_steps=2 format=3 uid="uid://beldoria_quest_dialog"]
+
+[ext_resource type="Script" path="res://ui/quest_dialog.gd" id="1_dialog"]
+
+[node name="QuestDialog" type="CanvasLayer"]
+layer = 12
+script = ExtResource("1_dialog")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -160.0
+offset_right = 240.0
+offset_bottom = 160.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="Root/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Root/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="NpcLabel" type="Label" parent="Root/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.78, 0.55, 1)
+theme_override_font_sizes/font_size = 13
+text = "NPC"
+
+[node name="TitleLabel" type="Label" parent="Root/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Missão"
+
+[node name="BodyLabel" type="RichTextLabel" parent="Root/Panel/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 110)
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = false
+scroll_active = true
+text = "Descrição da missão."
+
+[node name="ProgressLabel" type="Label" parent="Root/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Progresso"
+
+[node name="Buttons" type="HBoxContainer" parent="Root/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="CloseButton" type="Button" parent="Root/Panel/Margin/VBox/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 32)
+layout_mode = 2
+text = "Fechar"
+
+[node name="PrimaryButton" type="Button" parent="Root/Panel/Margin/VBox/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 32)
+layout_mode = 2
+text = "Aceitar missão"

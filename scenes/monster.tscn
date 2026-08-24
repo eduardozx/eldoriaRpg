@@ -1,0 +1,65 @@
+[gd_scene load_steps=5 format=3 uid="uid://beldoria_monster"]
+
+[ext_resource type="Script" path="res://scripts/monster.gd" id="1_mob"]
+[ext_resource type="Script" path="res://scripts/health_bar.gd" id="2_hp"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(20, 20)
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_mob"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:hp")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath(".:max_hp")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath(".:is_alive")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath(".:display_name")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+
+[node name="Monster" type="CharacterBody2D"]
+motion_mode = 1
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_mob")
+
+[node name="Body" type="ColorRect" parent="."]
+unique_name_in_owner = true
+offset_left = -11.0
+offset_top = -11.0
+offset_right = 11.0
+offset_bottom = 11.0
+mouse_filter = 2
+color = Color(0.62, 0.22, 0.28, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+unique_name_in_owner = true
+shape = SubResource("RectangleShape2D_body")
+
+[node name="NameLabel" type="Label" parent="."]
+unique_name_in_owner = true
+offset_left = -48.0
+offset_top = -42.0
+offset_right = 48.0
+offset_bottom = -26.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+text = "Monstro"
+horizontal_alignment = 1
+
+[node name="HealthBar" type="Node2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -22)
+script = ExtResource("2_hp")
+bar_size = Vector2(32, 4)
+fill_color = Color(0.86, 0.38, 0.28, 1)
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+root_path = NodePath("..")
+replication_config = SubResource("SceneReplicationConfig_mob")

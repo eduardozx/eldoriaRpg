@@ -1,0 +1,174 @@
+[gd_scene load_steps=2 format=3 uid="uid://beldoria_player_hud"]
+
+[ext_resource type="Script" path="res://ui/player_hud.gd" id="1_hud"]
+
+[node name="PlayerHud" type="CanvasLayer"]
+layer = 8
+script = ExtResource("1_hud")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="StatusPanel" type="PanelContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -280.0
+offset_top = 16.0
+offset_right = -16.0
+	offset_bottom = 240.0
+grow_horizontal = 0
+
+[node name="Margin" type="MarginContainer" parent="Root/StatusPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Root/StatusPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="Root/StatusPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Status"
+
+[node name="LevelLabel" type="Label" parent="Root/StatusPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Nível 1"
+
+[node name="HpLabel" type="Label" parent="Root/StatusPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "HP  100 / 100"
+
+[node name="HpBar" type="ProgressBar" parent="Root/StatusPanel/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+modulate = Color(0.55, 0.92, 0.62, 1)
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="ExpLabel" type="Label" parent="Root/StatusPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "EXP  0 / 100"
+
+[node name="DamageLabel" type="Label" parent="Root/StatusPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Dano base  8"
+
+[node name="WeaponLabel" type="Label" parent="Root/StatusPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.85, 1.0, 1)
+theme_override_font_sizes/font_size = 13
+text = "Arma  Punhos"
+
+[node name="GoldLabel" type="Label" parent="Root/StatusPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Ouro  0"
+
+[node name="QuestLabel" type="Label" parent="Root/StatusPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.82, 0.5, 1)
+theme_override_font_sizes/font_size = 13
+text = "Missão: nenhuma"
+autowrap_mode = 2
+
+[node name="InventoryPanel" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -348.0
+offset_top = -360.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="Margin" type="MarginContainer" parent="Root/InventoryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="Root/InventoryPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Root/InventoryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Inventário  (I para fechar)"
+
+[node name="SlotGrid" type="GridContainer" parent="Root/InventoryPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 4
+
+[node name="SlotHint" type="Label" parent="Root/InventoryPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Clique em um consumível para usar."
+autowrap_mode = 2
+
+[node name="PlayerListPanel" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 0
+offset_left = 16.0
+offset_top = 70.0
+offset_right = 300.0
+offset_bottom = 90.0
+
+[node name="Margin" type="MarginContainer" parent="Root/PlayerListPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="Root/PlayerListPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ListTitle" type="Label" parent="Root/PlayerListPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Online: 1"
+
+[node name="ListRows" type="VBoxContainer" parent="Root/PlayerListPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2

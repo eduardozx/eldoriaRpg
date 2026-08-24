@@ -1,0 +1,170 @@
+[gd_scene load_steps=2 format=3 uid="uid://beldoria_charcreator"]
+
+[ext_resource type="Script" path="res://ui/character_creator.gd" id="1_creator"]
+
+[node name="CharacterCreator" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_creator")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.06, 0.09, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(470, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Crie seu herói"
+horizontal_alignment = 1
+
+[node name="Content" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="LeftCol" type="VBoxContainer" parent="Center/Panel/Margin/VBox/Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PreviewFrame" type="PanelContainer" parent="Center/Panel/Margin/VBox/Content/LeftCol"]
+custom_minimum_size = Vector2(132, 132)
+layout_mode = 2
+
+[node name="PreviewSlot" type="Control" parent="Center/Panel/Margin/VBox/Content/LeftCol/PreviewFrame"]
+custom_minimum_size = Vector2(124, 124)
+layout_mode = 2
+
+[node name="PreviewSprite" type="AnimatedSprite2D" parent="Center/Panel/Margin/VBox/Content/LeftCol/PreviewFrame/PreviewSlot"]
+unique_name_in_owner = true
+texture_filter = 1
+position = Vector2(62, 66)
+scale = Vector2(4, 4)
+
+[node name="PreviewName" type="Label" parent="Center/Panel/Margin/VBox/Content/LeftCol"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.78, 0.82, 1)
+theme_override_font_sizes/font_size = 14
+text = "Herói"
+horizontal_alignment = 1
+
+[node name="Options" type="VBoxContainer" parent="Center/Panel/Margin/VBox/Content"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 5
+
+[node name="SkinLabel" type="Label" parent="Center/Panel/Margin/VBox/Content/Options"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.78, 0.82, 1)
+theme_override_font_sizes/font_size = 13
+text = "Pele"
+
+[node name="SkinRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox/Content/Options"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HairLabel" type="Label" parent="Center/Panel/Margin/VBox/Content/Options"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.78, 0.82, 1)
+theme_override_font_sizes/font_size = 13
+text = "Cor do cabelo"
+
+[node name="HairRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox/Content/Options"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="StyleLabel" type="Label" parent="Center/Panel/Margin/VBox/Content/Options"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.78, 0.82, 1)
+theme_override_font_sizes/font_size = 13
+text = "Estilo do cabelo"
+
+[node name="StyleOption" type="OptionButton" parent="Center/Panel/Margin/VBox/Content/Options"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ShirtLabel" type="Label" parent="Center/Panel/Margin/VBox/Content/Options"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.78, 0.82, 1)
+theme_override_font_sizes/font_size = 13
+text = "Túnica"
+
+[node name="ShirtRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox/Content/Options"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="PantsLabel" type="Label" parent="Center/Panel/Margin/VBox/Content/Options"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.78, 0.82, 1)
+theme_override_font_sizes/font_size = 13
+text = "Calça"
+
+[node name="PantsRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox/Content/Options"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Buttons" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RandomButton" type="Button" parent="Center/Panel/Margin/VBox/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Aleatório"
+
+[node name="Spacer" type="Control" parent="Center/Panel/Margin/VBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BackButton" type="Button" parent="Center/Panel/Margin/VBox/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Voltar"
+
+[node name="ConfirmButton" type="Button" parent="Center/Panel/Margin/VBox/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 36)
+layout_mode = 2
+text = "Entrar no mundo"
+
+[node name="StatusLabel" type="Label" parent="Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+horizontal_alignment = 1

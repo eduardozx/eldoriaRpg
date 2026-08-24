@@ -1,0 +1,463 @@
+[gd_scene load_steps=19 format=3 uid="uid://beldoria_map"]
+
+[ext_resource type="Script" path="res://scripts/map.gd" id="1_map"]
+[ext_resource type="Script" path="res://scripts/game_zone.gd" id="2_zone"]
+[ext_resource type="Script" path="res://scripts/pvp_zone.gd" id="3_pvp"]
+[ext_resource type="PackedScene" uid="uid://beldoria_monster" path="res://scenes/monster.tscn" id="4_mob"]
+[ext_resource type="PackedScene" uid="uid://beldoria_quest_npc" path="res://scenes/quest_npc.tscn" id="5_npc"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_spawn"]
+size = Vector2(360, 280)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_safe"]
+size = Vector2(1200, 880)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pve"]
+size = Vector2(1760, 880)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pvp"]
+size = Vector2(3040, 800)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_h"]
+size = Vector2(3200, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_v"]
+size = Vector2(32, 1920)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_div_n"]
+size = Vector2(32, 320)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_div_s"]
+size = Vector2(32, 360)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_div_w"]
+size = Vector2(1420, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_div_e"]
+size = Vector2(1380, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pillar"]
+size = Vector2(48, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hut"]
+size = Vector2(88, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rock"]
+size = Vector2(40, 36)
+
+[node name="Map" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_map")
+
+[node name="Visuals" type="Node2D" parent="."]
+z_index = -2
+
+[node name="Background" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_right = 3200.0
+offset_bottom = 1920.0
+color = Color(0.07, 0.09, 0.08, 1)
+
+[node name="SafeFloor" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 80.0
+offset_top = 80.0
+offset_right = 1280.0
+offset_bottom = 960.0
+color = Color(0.27, 0.41, 0.3, 1)
+
+[node name="SafeTrim" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 96.0
+offset_top = 96.0
+offset_right = 1264.0
+offset_bottom = 944.0
+color = Color(0.33, 0.48, 0.34, 1)
+
+[node name="SpawnFloor" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 200.0
+offset_top = 280.0
+offset_right = 560.0
+offset_bottom = 560.0
+color = Color(0.55, 0.5, 0.38, 1)
+
+[node name="SpawnInner" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 228.0
+offset_top = 308.0
+offset_right = 532.0
+offset_bottom = 532.0
+color = Color(0.64, 0.58, 0.42, 1)
+
+[node name="HuntFloor" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 1360.0
+offset_top = 80.0
+offset_right = 3120.0
+offset_bottom = 960.0
+color = Color(0.16, 0.26, 0.16, 1)
+
+[node name="HuntTrim" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 1376.0
+offset_top = 96.0
+offset_right = 3104.0
+offset_bottom = 944.0
+color = Color(0.2, 0.32, 0.19, 1)
+
+[node name="PvpFloor" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 80.0
+offset_top = 1040.0
+offset_right = 3120.0
+offset_bottom = 1840.0
+color = Color(0.32, 0.14, 0.13, 1)
+
+[node name="PvpTrim" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 96.0
+offset_top = 1056.0
+offset_right = 3104.0
+offset_bottom = 1824.0
+color = Color(0.4, 0.18, 0.16, 1)
+
+[node name="PathVillageHunt" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 1264.0
+offset_top = 400.0
+offset_right = 1376.0
+offset_bottom = 600.0
+color = Color(0.46, 0.4, 0.28, 1)
+
+[node name="PathToPvp" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 1500.0
+offset_top = 944.0
+offset_right = 1740.0
+offset_bottom = 1056.0
+color = Color(0.46, 0.4, 0.28, 1)
+
+[node name="WallNorth" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_right = 3200.0
+offset_bottom = 32.0
+color = Color(0.16, 0.17, 0.16, 1)
+
+[node name="WallSouth" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_top = 1888.0
+offset_right = 3200.0
+offset_bottom = 1920.0
+color = Color(0.16, 0.17, 0.16, 1)
+
+[node name="WallWest" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_right = 32.0
+offset_bottom = 1920.0
+color = Color(0.16, 0.17, 0.16, 1)
+
+[node name="WallEast" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 3168.0
+offset_right = 3200.0
+offset_bottom = 1920.0
+color = Color(0.16, 0.17, 0.16, 1)
+
+[node name="DividerVillageHuntN" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 1304.0
+offset_top = 80.0
+offset_right = 1336.0
+offset_bottom = 400.0
+color = Color(0.22, 0.23, 0.21, 1)
+
+[node name="DividerVillageHuntS" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 1304.0
+offset_top = 600.0
+offset_right = 1336.0
+offset_bottom = 960.0
+color = Color(0.22, 0.23, 0.21, 1)
+
+[node name="DividerNorthPvpW" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 80.0
+offset_top = 984.0
+offset_right = 1500.0
+offset_bottom = 1016.0
+color = Color(0.22, 0.23, 0.21, 1)
+
+[node name="DividerNorthPvpE" type="ColorRect" parent="Visuals"]
+mouse_filter = 2
+offset_left = 1740.0
+offset_top = 984.0
+offset_right = 3120.0
+offset_bottom = 1016.0
+color = Color(0.22, 0.23, 0.21, 1)
+
+[node name="SafeLabel" type="Label" parent="Visuals"]
+offset_left = 112.0
+offset_top = 108.0
+offset_right = 520.0
+offset_bottom = 140.0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.75)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 22
+text = "Vila Inicial (Safe Zone)"
+
+[node name="SpawnLabel" type="Label" parent="Visuals"]
+offset_left = 236.0
+offset_top = 320.0
+offset_right = 520.0
+offset_bottom = 344.0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.75)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 16
+text = "Spawn Area"
+
+[node name="HuntLabel" type="Label" parent="Visuals"]
+offset_left = 1392.0
+offset_top = 108.0
+offset_right = 1760.0
+offset_bottom = 140.0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.75)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 22
+text = "Área de Caça (PVE)"
+
+[node name="PvpLabel" type="Label" parent="Visuals"]
+offset_left = 112.0
+offset_top = 1068.0
+offset_right = 360.0
+offset_bottom = 1100.0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0.15, 0, 0, 0.8)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 22
+text = "Área PVP"
+
+[node name="PassageHintVH" type="Label" parent="Visuals"]
+offset_left = 1236.0
+offset_top = 472.0
+offset_right = 1404.0
+offset_bottom = 492.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+text = "passagem"
+horizontal_alignment = 1
+
+[node name="PassageHintPvp" type="Label" parent="Visuals"]
+offset_left = 1508.0
+offset_top = 980.0
+offset_right = 1732.0
+offset_bottom = 1000.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+text = "passagem PVP"
+horizontal_alignment = 1
+
+[node name="Zones" type="Node2D" parent="."]
+
+[node name="SpawnArea" type="Area2D" parent="Zones"]
+position = Vector2(380, 420)
+collision_layer = 0
+collision_mask = 1
+monitorable = false
+script = ExtResource("2_zone")
+zone_id = "spawn"
+zone_title = "Spawn Area"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Zones/SpawnArea"]
+shape = SubResource("RectangleShape2D_spawn")
+debug_color = Color(0.55, 0.85, 0.4, 0.2)
+
+[node name="SafeZone" type="Area2D" parent="Zones"]
+position = Vector2(680, 520)
+collision_layer = 0
+collision_mask = 1
+monitorable = false
+script = ExtResource("2_zone")
+zone_id = "safe"
+zone_title = "Vila Inicial"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Zones/SafeZone"]
+shape = SubResource("RectangleShape2D_safe")
+debug_color = Color(0.35, 0.7, 0.95, 0.12)
+
+[node name="HuntZone" type="Area2D" parent="Zones"]
+position = Vector2(2240, 520)
+collision_layer = 0
+collision_mask = 1
+monitorable = false
+script = ExtResource("2_zone")
+zone_id = "pve"
+zone_title = "Área de Caça"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Zones/HuntZone"]
+shape = SubResource("RectangleShape2D_pve")
+debug_color = Color(0.35, 0.75, 0.3, 0.12)
+
+[node name="PvpZone" type="Area2D" parent="Zones"]
+position = Vector2(1600, 1440)
+collision_layer = 0
+collision_mask = 1
+monitorable = false
+script = ExtResource("3_pvp")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Zones/PvpZone"]
+shape = SubResource("RectangleShape2D_pvp")
+debug_color = Color(0.95, 0.25, 0.2, 0.18)
+
+[node name="SpawnPoint" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(380, 420)
+gizmo_extents = 48.0
+
+[node name="Collision" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+
+[node name="North" type="CollisionShape2D" parent="Collision"]
+position = Vector2(1600, 16)
+shape = SubResource("RectangleShape2D_wall_h")
+
+[node name="South" type="CollisionShape2D" parent="Collision"]
+position = Vector2(1600, 1904)
+shape = SubResource("RectangleShape2D_wall_h")
+
+[node name="West" type="CollisionShape2D" parent="Collision"]
+position = Vector2(16, 960)
+shape = SubResource("RectangleShape2D_wall_v")
+
+[node name="East" type="CollisionShape2D" parent="Collision"]
+position = Vector2(3184, 960)
+shape = SubResource("RectangleShape2D_wall_v")
+
+[node name="VillageHuntNorth" type="CollisionShape2D" parent="Collision"]
+position = Vector2(1320, 240)
+shape = SubResource("RectangleShape2D_div_n")
+
+[node name="VillageHuntSouth" type="CollisionShape2D" parent="Collision"]
+position = Vector2(1320, 780)
+shape = SubResource("RectangleShape2D_div_s")
+
+[node name="NorthPvpWest" type="CollisionShape2D" parent="Collision"]
+position = Vector2(790, 1000)
+shape = SubResource("RectangleShape2D_div_w")
+
+[node name="NorthPvpEast" type="CollisionShape2D" parent="Collision"]
+position = Vector2(2430, 1000)
+shape = SubResource("RectangleShape2D_div_e")
+
+[node name="VillageHut" type="CollisionShape2D" parent="Collision"]
+position = Vector2(980, 220)
+shape = SubResource("RectangleShape2D_hut")
+
+[node name="PvpPillar1" type="CollisionShape2D" parent="Collision"]
+position = Vector2(620, 1440)
+shape = SubResource("RectangleShape2D_pillar")
+
+[node name="PvpPillar2" type="CollisionShape2D" parent="Collision"]
+position = Vector2(1600, 1320)
+shape = SubResource("RectangleShape2D_pillar")
+
+[node name="PvpPillar3" type="CollisionShape2D" parent="Collision"]
+position = Vector2(2580, 1560)
+shape = SubResource("RectangleShape2D_pillar")
+
+[node name="HuntRock1" type="CollisionShape2D" parent="Collision"]
+position = Vector2(1880, 220)
+shape = SubResource("RectangleShape2D_rock")
+
+[node name="HuntRock2" type="CollisionShape2D" parent="Collision"]
+position = Vector2(2740, 820)
+shape = SubResource("RectangleShape2D_rock")
+
+[node name="Props" type="Node2D" parent="."]
+z_index = -1
+
+[node name="Hut" type="ColorRect" parent="Props"]
+offset_left = 936.0
+offset_top = 188.0
+offset_right = 1024.0
+offset_bottom = 252.0
+mouse_filter = 2
+color = Color(0.45, 0.32, 0.22, 1)
+
+[node name="Well" type="ColorRect" parent="Props"]
+offset_left = 488.0
+offset_top = 484.0
+offset_right = 544.0
+offset_bottom = 540.0
+mouse_filter = 2
+color = Color(0.38, 0.42, 0.48, 1)
+
+[node name="PillarA" type="ColorRect" parent="Props"]
+offset_left = 596.0
+offset_top = 1416.0
+offset_right = 644.0
+offset_bottom = 1464.0
+mouse_filter = 2
+color = Color(0.28, 0.16, 0.16, 1)
+
+[node name="PillarB" type="ColorRect" parent="Props"]
+offset_left = 1576.0
+offset_top = 1296.0
+offset_right = 1624.0
+offset_bottom = 1344.0
+mouse_filter = 2
+color = Color(0.28, 0.16, 0.16, 1)
+
+[node name="PillarC" type="ColorRect" parent="Props"]
+offset_left = 2556.0
+offset_top = 1536.0
+offset_right = 2604.0
+offset_bottom = 1584.0
+mouse_filter = 2
+color = Color(0.28, 0.16, 0.16, 1)
+
+[node name="RockA" type="ColorRect" parent="Props"]
+offset_left = 1860.0
+offset_top = 202.0
+offset_right = 1900.0
+offset_bottom = 238.0
+mouse_filter = 2
+color = Color(0.28, 0.32, 0.24, 1)
+
+[node name="RockB" type="ColorRect" parent="Props"]
+offset_left = 2720.0
+offset_top = 802.0
+offset_right = 2760.0
+offset_bottom = 838.0
+mouse_filter = 2
+color = Color(0.28, 0.32, 0.24, 1)
+
+[node name="Npcs" type="Node2D" parent="."]
+z_index = 1
+
+[node name="QuestGiver" parent="Npcs" instance=ExtResource("5_npc")]
+position = Vector2(720, 400)
+
+[node name="Monsters" type="Node2D" parent="."]
+
+[node name="Monster1" parent="Monsters" instance=ExtResource("4_mob")]
+position = Vector2(1680, 260)
+
+[node name="Monster2" parent="Monsters" instance=ExtResource("4_mob")]
+position = Vector2(2100, 480)
+
+[node name="Monster3" parent="Monsters" instance=ExtResource("4_mob")]
+position = Vector2(2520, 320)
+
+[node name="Monster4" parent="Monsters" instance=ExtResource("4_mob")]
+position = Vector2(2860, 700)
+
+[node name="Monster5" parent="Monsters" instance=ExtResource("4_mob")]
+position = Vector2(1940, 760)
+
+[node name="Monster6" parent="Monsters" instance=ExtResource("4_mob")]
+position = Vector2(2380, 620)
