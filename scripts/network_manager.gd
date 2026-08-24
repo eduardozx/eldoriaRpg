@@ -14,6 +14,7 @@ const WORLD_SCENE := "res://scenes/world.tscn"
 const PLAYER_SCENE_PATH := "res://scenes/player.tscn"
 const CONNECT_TIMEOUT_SEC := 6.0
 const AUTH_RESPONSE_TIMEOUT := 10.0
+const SESSION_TOKEN_TTL_MSEC := 600000
 const MAX_CHAT_LENGTH := 200
 const MIN_PASSWORD_LENGTH := 3
 const SAVE_INTERVAL_SEC := 20.0
@@ -34,6 +35,11 @@ var _peer_accounts: Dictionary = {} # peer_id -> {"name": String, "snapshot": Di
 var _save_timer: Timer
 var _tracked_data: PlayerData = null
 var _auth_timer: Timer
+var _session_token: String = ""
+var _awaiting_reconnect: bool = false
+var _expect_network_spawn: bool = false
+var _intentional_disconnect: bool = false
+var _pending_spawns: Dictionary = {}
 
 var _player_scene: PackedScene
 var _players_root: Node2D
@@ -127,6 +133,7 @@ func _finish_register(ok: bool, message: String) -> void:
 ## Pós-criação de personagem: guarda aparência e entra no mundo.
 func complete_character_creation(appearance: Dictionary) -> void:
 	local_player_appearance = appearance
+	_expect_network_spawn = true
 	_enter_world()
 
 
@@ -153,7 +160,7 @@ func bind_world(
 			data.get("appearance", {})
 		)
 
-	if multiplayer.is_server():
+	if multiplayer.is_server() and not _expect_network_spawn:
 		var host_id := multiplayer.get_unique_id()
 		_player_names[host_id] = local_player_name
 		_spawn_player_local(host_id, local_player_name, _spawn_position_for(host_id), local_player_appearance)
@@ -164,11 +171,17 @@ func bind_world(
 
 func _request_spawn_after_world_ready() -> void:
 	# A mudança de cena e o registro dos nós de rede terminam no próximo frame.
-	# Esperar dois frames evita perder o spawn em navegadores muito rápidos.
 	await get_tree().process_frame
 	await get_tree().process_frame
-	if _players_root != null and multiplayer.has_multiplayer_peer():
-		rpc_id(1, "_rpc_request_spawn", local_player_name, local_player_appearance)
+	if _players_root == null:
+		return
+	if _has_live_session():
+		rpc_id(1, "_rpc_request_spawn", local_player_name, local_player_appearance, _session_token)
+		return
+	# Pós-auth: reconecta agora que o mundo está carregado (sync limpo).
+	_awaiting_reconnect = true
+	_intentional_disconnect = false
+	_start_client()
 
 
 ## Autenticação do host (desktop) direto no banco, sem RPC.
@@ -223,8 +236,10 @@ func _rpc_auth_request(mode: String, p_name: String, password: String) -> void:
 		if mode == "register":
 			rpc_id(sender, "_rpc_auth_response", true, "", {"register_only": true})
 			return
-		_peer_accounts[sender] = {"name": p_name, "snapshot": {}}
-		rpc_id(sender, "_rpc_auth_response", true, "", {"character_created": true})
+		var guest_entry := {"name": p_name, "snapshot": {}}
+		var guest_token := _make_session_token(guest_entry)
+		rpc_id(sender, "_rpc_auth_response", true, "",
+				{"character_created": true, "session_token": guest_token})
 		return
 	DatabaseManager.authenticate_or_register(mode, p_name, password,
 			func(ok: bool, message: String, account: Dictionary) -> void:
@@ -237,8 +252,9 @@ func _rpc_auth_request(mode: String, p_name: String, password: String) -> void:
 						"name": p_name,
 						"snapshot": _snapshot_from_account(account),
 					}
-					rpc_id(sender, "_rpc_auth_response", true, "",
-							_peer_accounts[sender]["snapshot"])
+					var resp: Dictionary = _peer_accounts[sender]["snapshot"].duplicate(true)
+					resp["session_token"] = _make_session_token(_peer_accounts[sender])
+					rpc_id(sender, "_rpc_auth_response", true, "", resp)
 				else:
 					rpc_id(sender, "_rpc_auth_response", false, message, {}))
 
@@ -255,17 +271,21 @@ func _rpc_auth_response(ok: bool, message: String, snapshot: Dictionary) -> void
 	if not ok:
 		_fail_auth(message)
 		return
+	_session_token = str(snapshot.get("session_token", ""))
 	if bool(snapshot.get("character_created", false)):
-		_local_pending_account = snapshot
 		var appearance: Variant = snapshot.get("appearance")
 		if appearance is Dictionary and not appearance.is_empty():
 			local_player_appearance = PlayerSpriteFrames.normalize(appearance)
-		_finish_auth()
+		# Reconecta já dentro do mundo: sincronização começa limpa.
+		_expect_network_spawn = true
+		_detach_peer()
+		_enter_world()
 	else:
-		# Conta sem personagem: abre a tela de criação antes de entrar no mundo.
-		# Pending fica vazio para o jogador novo ganhar o kit inicial normal.
+		# Conta sem personagem: criação acontece desconectado; token aguarda.
 		_account_password = ""
 		_local_pending_account = {}
+		_expect_network_spawn = true
+		_detach_peer()
 		needs_character_creation.emit()
 
 
@@ -319,6 +339,32 @@ func _snapshot_from_account(account: Dictionary) -> Dictionary:
 	}
 
 
+## Fecha a conexão preservando dados locais (usado no fluxo auth → mundo).
+func _detach_peer() -> void:
+	_intentional_disconnect = true
+	_connect_timer.stop()
+	_auth_timer.stop()
+	if multiplayer.has_multiplayer_peer():
+		multiplayer.multiplayer_peer.close()
+	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+	is_host = false
+	_auth_in_progress = false
+	chat_input_active = false
+	_players_root = null
+	_pending_spawn_data.clear()
+	_player_names.clear()
+
+
+## Registra um token de sessão que autoriza o spawn com os dados salvos.
+func _make_session_token(entry: Dictionary) -> String:
+	var token := Crypto.new().generate_random_bytes(16).hex_encode()
+	_pending_spawns[token] = {
+		"entry": entry,
+		"expires": Time.get_ticks_msec() + SESSION_TOKEN_TTL_MSEC,
+	}
+	return token
+
+
 func consume_local_account() -> Dictionary:
 	var account := _local_pending_account
 	_local_pending_account = {}
@@ -369,6 +415,10 @@ func _notification(what: int) -> void:
 
 
 func _on_save_timer() -> void:
+	var now := Time.get_ticks_msec()
+	for token in _pending_spawns.keys():
+		if int(_pending_spawns[token]["expires"]) < now:
+			_pending_spawns.erase(token)
 	if _tracked_data == null:
 		return
 	if not _has_live_session():
@@ -435,13 +485,20 @@ func _rpc_save_account(snapshot: Dictionary) -> void:
 
 
 @rpc("any_peer", "call_local", "reliable")
-func _rpc_request_spawn(p_name: String, appearance: Dictionary) -> void:
+func _rpc_request_spawn(p_name: String, appearance: Dictionary, token: String = "") -> void:
 	if not multiplayer.is_server():
 		return
 	var sender_id := multiplayer.get_remote_sender_id()
 	if sender_id == 0:
 		sender_id = multiplayer.get_unique_id()
-	
+
+	# Token de sessão: vincula este peer à conta autenticada há pouco.
+	if not token.is_empty() and _pending_spawns.has(token):
+		var pending: Dictionary = _pending_spawns[token]
+		_pending_spawns.erase(token)
+		if Time.get_ticks_msec() <= int(pending.get("expires", 0)):
+			_peer_accounts[sender_id] = pending.get("entry", {})
+
 	_player_names[sender_id] = p_name
 	# Primeiro spawn de uma conta nova: marca o personagem como criado no banco.
 	_mark_character_created(sender_id, appearance)
@@ -605,6 +662,7 @@ func _start_host() -> bool:
 
 
 func _start_client() -> void:
+	_intentional_disconnect = false
 	var peer := WebSocketMultiplayerPeer.new()
 	var url := resolve_websocket_url()
 	var err := peer.create_client(url)
@@ -727,6 +785,10 @@ func _on_peer_disconnected(peer_id: int) -> void:
 
 
 func _on_connected_to_server() -> void:
+	if _awaiting_reconnect:
+		_awaiting_reconnect = false
+		rpc_id(1, "_rpc_request_spawn", local_player_name, local_player_appearance, _session_token)
+		return
 	if not _account_password.is_empty():
 		# Autentica (ou registra) antes de qualquer coisa. Com teto de tempo:
 		# servidores antigos sem suporte a login não respondem nunca.
@@ -751,6 +813,8 @@ func _on_connect_timeout() -> void:
 
 
 func _on_server_disconnected() -> void:
+	if _intentional_disconnect:
+		return
 	var was_authenticating := _auth_in_progress
 	_auth_in_progress = false
 	_reset_peer()
@@ -775,6 +839,10 @@ func _reset_peer() -> void:
 	is_host = false
 	_auth_in_progress = false
 	_register_only = false
+	_awaiting_reconnect = false
+	_intentional_disconnect = false
+	_expect_network_spawn = false
+	_session_token = ""
 	_account_password = ""
 	chat_input_active = false
 	_players_root = null
