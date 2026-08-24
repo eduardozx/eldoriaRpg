@@ -84,7 +84,7 @@ func join_or_host(player_name: String, password: String = "") -> void:
 	_auth_in_progress = not password.is_empty()
 	_register_only = false
 
-	if OS.has_feature("web"):
+	if OS.has_feature("web") or not OS.get_environment("ELDORIA_FORCE_CLIENT").is_empty():
 		_start_client()
 		return
 
@@ -105,7 +105,7 @@ func start_register(player_name: String, password: String) -> void:
 	_auth_in_progress = true
 	_register_only = true
 
-	if OS.has_feature("web"):
+	if OS.has_feature("web") or not OS.get_environment("ELDORIA_FORCE_CLIENT").is_empty():
 		_start_client()
 		return
 
@@ -618,6 +618,9 @@ func _start_client() -> void:
 
 
 func resolve_websocket_url() -> String:
+	var from_env := OS.get_environment("ELDORIA_SERVER_URL")
+	if not from_env.is_empty():
+		return from_env
 	if OS.has_feature("web"):
 		var from_query := _web_query_ws_url()
 		if not from_query.is_empty():
