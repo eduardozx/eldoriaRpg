@@ -100,7 +100,10 @@ func _bind_local_hud() -> void:
 
 
 ## Restaura o progresso da conta (stats, itens e posição do último logout).
+## Apenas o boneco LOCAL consome — réplicas dos outros não podem roubar o snapshot.
 func _apply_saved_account() -> void:
+	if not is_multiplayer_authority():
+		return
 	var account := NetworkManager.consume_local_account()
 	if account.is_empty():
 		return
