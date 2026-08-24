@@ -174,6 +174,7 @@ func _request_spawn_after_world_ready() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	if _players_root == null:
+		print("[DBG] request_spawn: root null!")
 		return
 	if _has_live_session():
 		rpc_id(1, "_rpc_request_spawn", local_player_name, local_player_appearance, _session_token)

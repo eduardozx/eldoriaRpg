@@ -83,9 +83,9 @@ func _await_world_then_save() -> void:
 
 
 func _find_local_player() -> Node2D:
-	for attempt in 24:
+	for attempt in 40:
 		for node in get_tree().get_nodes_in_group("player"):
-			if node is Node2D and node.is_multiplayer_authority():
+			if node is Node2D and str(node.display_name) == p_name:
 				return node
 		await get_tree().create_timer(0.25).timeout
 	return null
