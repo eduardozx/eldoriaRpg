@@ -13,6 +13,7 @@ const SERVER_ADDRESS := "127.0.0.1"
 const WORLD_SCENE := "res://scenes/world.tscn"
 const PLAYER_SCENE_PATH := "res://scenes/player.tscn"
 const CONNECT_TIMEOUT_SEC := 6.0
+const AUTH_RESPONSE_TIMEOUT := 10.0
 const MAX_CHAT_LENGTH := 200
 const MIN_PASSWORD_LENGTH := 3
 const SAVE_INTERVAL_SEC := 20.0
@@ -32,6 +33,7 @@ var _local_pending_account: Dictionary = {}
 var _peer_accounts: Dictionary = {} # peer_id -> {"name": String, "snapshot": Dictionary}
 var _save_timer: Timer
 var _tracked_data: PlayerData = null
+var _auth_timer: Timer
 
 var _player_scene: PackedScene
 var _players_root: Node2D
@@ -61,6 +63,12 @@ func _ready() -> void:
 	_save_timer.timeout.connect(_on_save_timer)
 	add_child(_save_timer)
 	_save_timer.start()
+
+	_auth_timer = Timer.new()
+	_auth_timer.one_shot = true
+	_auth_timer.wait_time = AUTH_RESPONSE_TIMEOUT
+	_auth_timer.timeout.connect(_on_auth_response_timeout)
+	add_child(_auth_timer)
 
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
@@ -237,6 +245,7 @@ func _rpc_auth_request(mode: String, p_name: String, password: String) -> void:
 
 @rpc("authority", "call_remote", "reliable")
 func _rpc_auth_response(ok: bool, message: String, snapshot: Dictionary) -> void:
+	_auth_timer.stop()
 	if not _auth_in_progress:
 		return
 	_auth_in_progress = false
@@ -261,11 +270,26 @@ func _rpc_auth_response(ok: bool, message: String, snapshot: Dictionary) -> void
 
 
 func _finish_auth() -> void:
+	_auth_timer.stop()
 	_account_password = ""
 	_enter_world()
 
 
+## Estouro de espera pela resposta de autenticação (servidor antigo/morto).
+func _on_auth_response_timeout() -> void:
+	if not _auth_in_progress:
+		return
+	var registering := _register_only
+	_reset_peer()
+	var reason := "O servidor demorou para responder. Pode estar fora do ar ou desatualizado."
+	if registering:
+		register_result.emit(false, reason)
+	else:
+		auth_failed.emit(reason)
+
+
 func _fail_auth(reason: String) -> void:
+	_auth_timer.stop()
 	_account_password = ""
 	_connect_timer.stop()
 	if multiplayer.has_multiplayer_peer():
@@ -701,7 +725,9 @@ func _on_peer_disconnected(peer_id: int) -> void:
 
 func _on_connected_to_server() -> void:
 	if not _account_password.is_empty():
-		# Autentica (ou registra) antes de qualquer outra coisa.
+		# Autentica (ou registra) antes de qualquer coisa. Com teto de tempo:
+		# servidores antigos sem suporte a login não respondem nunca.
+		_auth_timer.start()
 		rpc_id(1, "_rpc_auth_request", "register" if _register_only else "login",
 				local_player_name, _account_password)
 		return
